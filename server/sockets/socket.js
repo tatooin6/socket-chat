@@ -31,6 +31,9 @@ io.on('connection', (client) => {
         // a una sala de chat, mandandole el nombre de la sala
         client.broadcast.to(data.sala).emit('listaPersonas', usuarios.getPersonasPorSala(data.sala));
 
+        // se notifica la persona que ha ingresado a la sala
+        client.broadcast.to(data.sala).emit('crearMensaje', crearMensaje('Administrador', `${data.nombre} entró del chat`));
+
         // se retornan todas las personas conectadas al chat
         // callback(personas);
 
@@ -42,7 +45,7 @@ io.on('connection', (client) => {
     // servidor esta escuchando cuando algun usuario llama a ese metodo de crear mensaje
     /* mandar de consola lo siguiente para personalbar
     socket.emit('crearMensaje',{nombre:'Raul',mensaje:'hola, soy raul?'}); */
-    client.on( 'crearMensaje', (data) => {
+    client.on( 'crearMensaje', (data, callback) => {
 
         let persona = usuarios.getPersona(client.id);
 
@@ -50,6 +53,8 @@ io.on('connection', (client) => {
         // se manda solamente el mensaje a la sala con .to(persona.sala)
         client.broadcast.to(persona.sala).emit( 'crearMensaje', mensaje );
 
+        
+        callback(mensaje);
     });
 
     client.on('disconnect', () => {
